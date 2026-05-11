@@ -29,19 +29,12 @@ The implementation uses the optimized prefix-product / suffix-sum form and norma
 
 ## Results from the paper
 
-On Qwen3-4B DFlash drafts, D-PACE improves both wall-clock decoding speedup (SR) and average emitted length (`tau`) over the DFlash decayed-CE baseline across the main settings:
+Compared with the DFlash decayed-CE baseline, D-PACE improves both wall-clock decoding speedup (SR) and average emitted length (`tau`) without changing the inference pipeline.
 
-| Target / setting | DFlash avg. SR | D-PACE avg. SR | SR gain | DFlash avg. `tau` | D-PACE avg. `tau` | `tau` gain |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Qwen3-4B, 3L, T=0 | 2.93 | 3.20 | +9.2% | 4.10 | 4.52 | +10.2% |
-| Qwen3-4B, 5L, T=0 | 2.98 | 3.27 | +9.7% | 4.38 | 4.85 | +10.7% |
-| Qwen3-4B, 3L, T=1 | 2.74 | 2.96 | +8.0% | 3.86 | 4.19 | +8.5% |
-| Qwen3-4B, 5L, T=1 | 2.77 | 3.03 | +9.4% | 4.10 | 4.50 | +9.8% |
-
-Additional paper highlights:
-
-- Up to **4.47x** speedup on MATH-500 with the 5L Qwen3-4B drafter.
-- Cross-target average emitted length gains of about **+12.5%** on Llama-3.1-8B-Instruct and **+12.8%** on Qwen3-8B.
+- **Qwen3-4B main settings:** average SR improves by **+8.0% to +9.7%**.
+- **Qwen3-4B main settings:** average emitted length improves by **+8.5% to +10.7%**.
+- **Cross-target transfer:** average emitted length improves by about **+12.5%** on Llama-3.1-8B-Instruct and **+12.8%** on Qwen3-8B.
+- **MATH-500:** up to **4.47x** speedup with the 5L Qwen3-4B drafter.
 
 ## Training
 
