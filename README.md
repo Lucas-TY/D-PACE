@@ -8,6 +8,17 @@ This repository is based on [SGLang SpecForge](https://github.com/sgl-project/Sp
   <img src="./assets/dpace_results.svg" alt="D-PACE headline results" width="880">
 </p>
 
+## What this repository adds
+
+Compared with upstream SpecForge, this release adds:
+
+- D-PACE loss support for DFlash training: `--loss-type dpace`.
+- Two D-PACE component ablations: `dpace_p` and `dpace_f`.
+- Batch-size-normalized D-PACE training loss.
+- A clean D-PACE training example and release-focused README.
+
+The original DFlash loss path remains available as `--loss-type dflash`, including `--loss-decay-gamma`.
+
 ## What D-PACE changes
 
 DFlash trains parallel block drafters with a fixed position-decay cross-entropy schedule. D-PACE instead derives per-position cross-entropy weights from a smooth accepted-length surrogate, so the loss can shift learning signal toward the draft positions that currently limit accepted length.
