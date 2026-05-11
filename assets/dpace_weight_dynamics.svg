@@ -1,45 +1,49 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="920" height="360" viewBox="0 0 920 360" role="img" aria-labelledby="title desc">
-  <title id="title">D-PACE dynamic position weights</title>
-  <desc id="desc">Conceptual chart contrasting DFlash fixed exponential decay with D-PACE weights that shift across draft positions as the drafter improves.</desc>
-  <defs>
-    <linearGradient id="panel" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0%" stop-color="#eef2ff"/>
-      <stop offset="100%" stop-color="#f0fdf4"/>
-    </linearGradient>
-  </defs>
-  <rect width="920" height="360" rx="24" fill="url(#panel)"/>
-  <text x="38" y="52" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="28" font-weight="750" fill="#0f172a">Dynamic position weights</text>
-  <text x="38" y="82" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" fill="#475569">DFlash uses a fixed position schedule; D-PACE recomputes weights from the current block's accepted-length surrogate.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="340" viewBox="0 0 920 340" role="img" aria-labelledby="title desc">
+  <title id="title">D-PACE position-weight dynamics</title>
+  <desc id="desc">Academic-style conceptual line plot contrasting DFlash fixed decay and D-PACE dynamic per-position weights.</desc>
+  <rect width="920" height="340" fill="#ffffff"/>
 
-  <g transform="translate(86,120)">
-    <rect x="0" y="0" width="745" height="178" rx="16" fill="#ffffff" opacity="0.88"/>
-    <line x1="52" y1="132" x2="690" y2="132" stroke="#94a3b8" stroke-width="1.4"/>
-    <line x1="52" y1="20" x2="52" y2="132" stroke="#94a3b8" stroke-width="1.4"/>
-    <text x="370" y="167" text-anchor="middle" font-family="Inter, ui-sans-serif, system-ui" font-size="14" fill="#475569">draft position in block</text>
-    <text x="-74" y="26" transform="rotate(-90)" font-family="Inter, ui-sans-serif, system-ui" font-size="14" fill="#475569">relative weight</text>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="60" y="42" font-size="20" font-weight="600" fill="#111827">Position-weight dynamics</text>
+    <text x="60" y="66" font-size="13" fill="#4b5563">Conceptual redraw: D-PACE recomputes weights from the current accepted-length surrogate; DFlash keeps a fixed schedule.</text>
 
-    <g stroke="#cbd5e1" stroke-width="1">
-      <line x1="52" y1="104" x2="690" y2="104"/>
-      <line x1="52" y1="76" x2="690" y2="76"/>
-      <line x1="52" y1="48" x2="690" y2="48"/>
+    <g transform="translate(92,92)">
+      <line x1="0" y1="190" x2="720" y2="190" stroke="#111827" stroke-width="1"/>
+      <line x1="0" y1="0" x2="0" y2="190" stroke="#111827" stroke-width="1"/>
+
+      <g stroke="#e5e7eb" stroke-width="1">
+        <line x1="0" y1="145" x2="720" y2="145"/>
+        <line x1="0" y1="100" x2="720" y2="100"/>
+        <line x1="0" y1="55" x2="720" y2="55"/>
+      </g>
+
+      <g font-size="12" fill="#4b5563">
+        <text x="-12" y="194" text-anchor="end">0</text>
+        <text x="-12" y="104" text-anchor="end">weight</text>
+        <text x="360" y="232" text-anchor="middle">draft position in block</text>
+      </g>
+
+      <path d="M0,32 C95,45 185,63 270,82 C380,108 500,134 720,162"
+            fill="none" stroke="#6b7280" stroke-width="2.4" stroke-dasharray="7 5"/>
+      <path d="M0,42 C92,45 180,54 270,72 C385,96 520,123 720,148"
+            fill="none" stroke="#1f4e79" stroke-width="2.6"/>
+      <path d="M0,73 C105,64 205,61 305,72 C430,86 555,112 720,137"
+            fill="none" stroke="#2f6f9f" stroke-width="2.6"/>
+      <path d="M0,122 C110,94 230,70 350,58 C480,47 600,70 720,113"
+            fill="none" stroke="#0f766e" stroke-width="2.6"/>
+
+      <g font-size="12" fill="#111827">
+        <line x1="500" y1="26" x2="530" y2="26" stroke="#6b7280" stroke-width="2.4" stroke-dasharray="7 5"/>
+        <text x="540" y="30">DFlash fixed decay</text>
+        <line x1="500" y1="52" x2="530" y2="52" stroke="#1f4e79" stroke-width="2.6"/>
+        <text x="540" y="56">D-PACE early</text>
+        <line x1="500" y1="78" x2="530" y2="78" stroke="#2f6f9f" stroke-width="2.6"/>
+        <text x="540" y="82">D-PACE mid</text>
+        <line x1="500" y1="104" x2="530" y2="104" stroke="#0f766e" stroke-width="2.6"/>
+        <text x="540" y="108">D-PACE later</text>
+      </g>
     </g>
 
-    <path d="M52,34 C130,50 205,67 275,82 C350,98 430,112 520,122 C585,129 640,131 690,132" fill="none" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/>
-    <path d="M52,45 C140,47 220,55 300,72 C390,92 500,108 690,116" fill="none" stroke="#2563eb" stroke-width="4" stroke-linecap="round"/>
-    <path d="M52,63 C135,58 230,56 320,64 C430,75 535,92 690,106" fill="none" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/>
-    <path d="M52,90 C150,75 255,58 360,49 C465,42 575,55 690,85" fill="none" stroke="#22c55e" stroke-width="4" stroke-linecap="round"/>
-
-    <g font-family="Inter, ui-sans-serif, system-ui" font-size="13" fill="#334155">
-      <circle cx="548" cy="33" r="5" fill="#ef4444"/>
-      <text x="562" y="38">DFlash fixed decay</text>
-      <circle cx="548" cy="58" r="5" fill="#2563eb"/>
-      <text x="562" y="63">D-PACE early</text>
-      <circle cx="548" cy="83" r="5" fill="#38bdf8"/>
-      <text x="562" y="88">D-PACE mid</text>
-      <circle cx="548" cy="108" r="5" fill="#22c55e"/>
-      <text x="562" y="113">D-PACE later</text>
-    </g>
+    <text x="92" y="316" font-size="12" fill="#6b7280">The schematic emphasizes the qualitative mechanism; exact curves depend on the trained drafter, block, and checkpoint.</text>
   </g>
-
-  <text x="86" y="326" font-family="Inter, ui-sans-serif, system-ui" font-size="13" fill="#64748b">Conceptual redraw of the paper's weight-dynamics story: as early positions improve, D-PACE can move learning signal toward later positions that limit accepted length.</text>
 </svg>
