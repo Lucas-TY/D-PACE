@@ -8,24 +8,21 @@ This repository is based on [SGLang SpecForge](https://github.com/sgl-project/Sp
   <img src="./assets/dpace_results.svg" alt="D-PACE headline results" width="880">
 </p>
 
-## What D-PACE changes
+## Method overview
 
-DFlash trains parallel block drafters with a fixed position-decay cross-entropy schedule. D-PACE instead derives per-position cross-entropy weights from a smooth accepted-length surrogate, so the loss can shift learning signal toward the draft positions that currently limit accepted length.
+D-PACE is a drop-in training objective for DFlash. It replaces the fixed position-decay schedule with example-dependent weights derived from a smooth accepted-length surrogate, so cross-entropy receives more signal at the positions that currently limit accepted length.
 
-For a draft block with target-token draft confidence `q_j`:
+The loss follows a simple pipeline:
 
-```text
-q_tilde_j = (1 - alpha) * q_j + alpha
-P_j       = prod_{i <= j} q_tilde_i
-w_j       = sum_{m >= j} P_m
-L_D-PACE  = sum_j stop_gradient(w_j) * CE_j
-```
+**draft confidence → smoothed prefix acceptance → suffix contribution weights → detached weighted CE**
 
-The implementation uses the optimized prefix-product / suffix-sum form and normalizes D-PACE losses by the local per-GPU batch size. The standard DFlash loss remains available for compatibility.
+The implementation uses an efficient prefix-product / suffix-sum pass and normalizes D-PACE variants by the local per-GPU batch size. The standard DFlash loss remains available for compatibility.
 
 <p align="center">
   <img src="./assets/dpace_weight_dynamics.svg" alt="D-PACE dynamic position weights" width="880">
 </p>
+
+**Weight dynamics.** D-PACE recomputes position weights from the current draft confidences instead of using DFlash's fixed decay. As earlier block positions become more reliable, the training signal can move toward later positions that increasingly limit accepted length; the trajectory panel shows the corresponding MATH-500 emitted-length gains and component ablations.
 
 ## Results from the paper
 
