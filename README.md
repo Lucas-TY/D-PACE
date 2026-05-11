@@ -2,7 +2,7 @@
 
 **Dynamic Position-Aware Cross-Entropy for DFlash speculative drafting.**
 
-This repository is based on [SGLang SpecForge](https://github.com/sgl-project/SpecForge/tree/main) and adds a focused D-PACE training loss for DFlash models. D-PACE changes the training objective only: the drafter architecture, target model interface, and inference pipeline stay unchanged.
+This repository is based on [SGLang SpecForge](https://github.com/sgl-project/SpecForge) and adds a focused D-PACE training loss for [DFlash](https://github.com/z-lab/dflash) models. D-PACE changes the training objective only: the drafter architecture, target model interface, and inference pipeline stay unchanged.
 
 <p align="center">
   <img src="./assets/dpace_results.svg" alt="D-PACE headline results" width="880">
@@ -47,6 +47,10 @@ Additional paper highlights:
 
 Use the existing SpecForge DFlash training entrypoint and select D-PACE explicitly:
 
+For the Qwen3-4B experiments in the paper, the training data is
+[z-lab/qwen3-4b-instruct-100k](https://huggingface.co/datasets/z-lab/qwen3-4b-instruct-100k).
+Prepare it as the JSONL path expected by SpecForge and pass it through `--train-data-path`.
+
 ```bash
 PYTHONPATH=. torchrun --standalone --nproc_per_node 8 \
   scripts/train_dflash.py \
@@ -90,6 +94,6 @@ NUM_GPUS=8 DPACE_ALPHA=0.5 bash examples/run_qwen3_8b_dpace_online.sh
 - This release intentionally keeps the public surface focused on the D-PACE method family.
 - General SpecForge data preparation and training details still apply; see the upstream SpecForge documentation for broader framework usage.
 
-## Acknowledgement
+## Acknowledgements
 
-This codebase is adapted from SGLang's SpecForge project. We thank the SpecForge and SGLang contributors for the DFlash training framework that this implementation builds on.
+This codebase is adapted from [SGLang SpecForge](https://github.com/sgl-project/SpecForge). D-PACE builds on the [DFlash](https://github.com/z-lab/dflash) parallel speculative drafting setting, and the Qwen3-4B training experiments use the [z-lab/qwen3-4b-instruct-100k](https://huggingface.co/datasets/z-lab/qwen3-4b-instruct-100k) dataset. We thank the SpecForge/SGLang and DFlash contributors for the systems and research foundations this implementation builds on.
