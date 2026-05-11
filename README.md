@@ -2,7 +2,7 @@
 
 **Dynamic Position-Aware Cross-Entropy for DFlash speculative drafting.**
 
-This repository is based on [SGLang SpecForge](https://github.com/sgl-project/SpecForge) and adds a focused D-PACE training loss for [DFlash](https://github.com/z-lab/dflash) models. D-PACE changes the training objective only: the drafter architecture, target model interface, and inference pipeline stay unchanged.
+This repository is based on [SGLang SpecForge](https://github.com/sgl-project/SpecForge) and adds D-PACE, a dynamic position-aware training loss for [DFlash](https://github.com/z-lab/dflash) models. D-PACE changes the training objective only: the drafter architecture, target model interface, and inference pipeline stay unchanged.
 
 <p align="center">
   <img src="./assets/dpace_results.svg" alt="D-PACE headline results" width="880">
