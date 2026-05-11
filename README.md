@@ -5,7 +5,7 @@
 This repository is based on [SGLang SpecForge](https://github.com/sgl-project/SpecForge/tree/main) and adds a focused D-PACE training loss for DFlash models. D-PACE changes the training objective only: the drafter architecture, target model interface, and inference pipeline stay unchanged.
 
 <p align="center">
-  <img src="./assets/dpace_results.svg" alt="D-PACE headline results" width="880">
+  <img src="./assets/dpace_results.png" alt="D-PACE headline results" width="880">
 </p>
 
 ## What D-PACE changes
@@ -42,7 +42,6 @@ Additional paper highlights:
 
 - Up to **4.47x** speedup on MATH-500 with the 5L Qwen3-4B drafter.
 - Cross-target average emitted length gains of about **+12.5%** on Llama-3.1-8B-Instruct and **+12.8%** on Qwen3-8B.
-- Measured training-time overhead is **2.3%** per step on a single H200.
 
 ## Training
 
