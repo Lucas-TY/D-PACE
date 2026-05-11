@@ -96,4 +96,4 @@ NUM_GPUS=8 DPACE_ALPHA=0.5 bash examples/run_qwen3_8b_dpace_online.sh
 
 ## Acknowledgements
 
-This codebase is adapted from [SGLang SpecForge](https://github.com/sgl-project/SpecForge). D-PACE builds on the [DFlash](https://github.com/z-lab/dflash) parallel speculative drafting setting, and the Qwen3-4B training experiments use the [z-lab/qwen3-4b-instruct-100k](https://huggingface.co/datasets/z-lab/qwen3-4b-instruct-100k) dataset. We thank the SpecForge/SGLang and DFlash contributors for the systems and research foundations this implementation builds on.
+This codebase is adapted from [SGLang SpecForge](https://github.com/sgl-project/SpecForge). D-PACE builds on the [DFlash](https://github.com/z-lab/dflash) parallel speculative drafting setting, and the Qwen3-4B training experiments use the [z-lab/qwen3-4b-instruct-100k](https://huggingface.co/datasets/z-lab/qwen3-4b-instruct-100k) dataset. We thank the SpecForge/SGLang and DFlash contributors for the systems and research foundations this implementation builds on. We also thank Professor Minlan Yu for GPU support during the initial experiments.
