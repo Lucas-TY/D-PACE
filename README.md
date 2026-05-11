@@ -16,8 +16,6 @@ The loss follows a simple pipeline:
 
 **draft confidence → smoothed prefix acceptance → suffix contribution weights → detached weighted CE**
 
-The implementation uses an efficient prefix-product / suffix-sum pass and normalizes D-PACE variants by the local per-GPU batch size. The standard DFlash loss remains available for compatibility.
-
 <p align="center">
   <img src="./assets/dpace_weight_dynamics.svg" alt="D-PACE dynamic position weights" width="880">
 </p>
