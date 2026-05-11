@@ -5,7 +5,7 @@
 This repository is based on [SGLang SpecForge](https://github.com/sgl-project/SpecForge/tree/main) and adds a focused D-PACE training loss for DFlash models. D-PACE changes the training objective only: the drafter architecture, target model interface, and inference pipeline stay unchanged.
 
 <p align="center">
-  <img src="./assets/dpace_results.png" alt="D-PACE headline results" width="880">
+  <img src="./assets/dpace_results.svg" alt="D-PACE headline results" width="880">
 </p>
 
 ## What D-PACE changes
