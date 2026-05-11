@@ -1,70 +1,96 @@
-<div align="center" id="sglangtop">
-<img src="./assets/logo.png" alt="logo" width="400" margin="10px"></img>
+# D-PACE
 
-[![documentation](https://img.shields.io/badge/📖-Documentation-red.svg?style=flat)](https://docs.sglang.ai/SpecForge/)
-[![SpecBundle](https://img.shields.io/badge/🤗%20SpecBundle-yellow.svg?style=flat)](https://huggingface.co/collections/lmsys/specbundle)
-[![DeepWiki](https://img.shields.io/badge/DeepWiki-SpecForge-blue.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAyCAYAAAAnWDnqAAAAAXNSR0IArs4c6QAAA05JREFUaEPtmUtyEzEQhtWTQyQLHNak2AB7ZnyXZMEjXMGeK/AIi+QuHrMnbChYY7MIh8g01fJoopFb0uhhEqqcbWTp06/uv1saEDv4O3n3dV60RfP947Mm9/SQc0ICFQgzfc4CYZoTPAswgSJCCUJUnAAoRHOAUOcATwbmVLWdGoH//PB8mnKqScAhsD0kYP3j/Yt5LPQe2KvcXmGvRHcDnpxfL2zOYJ1mFwrryWTz0advv1Ut4CJgf5uhDuDj5eUcAUoahrdY/56ebRWeraTjMt/00Sh3UDtjgHtQNHwcRGOC98BJEAEymycmYcWwOprTgcB6VZ5JK5TAJ+fXGLBm3FDAmn6oPPjR4rKCAoJCal2eAiQp2x0vxTPB3ALO2CRkwmDy5WohzBDwSEFKRwPbknEggCPB/imwrycgxX2NzoMCHhPkDwqYMr9tRcP5qNrMZHkVnOjRMWwLCcr8ohBVb1OMjxLwGCvjTikrsBOiA6fNyCrm8V1rP93iVPpwaE+gO0SsWmPiXB+jikdf6SizrT5qKasx5j8ABbHpFTx+vFXp9EnYQmLx02h1QTTrl6eDqxLnGjporxl3NL3agEvXdT0WmEost648sQOYAeJS9Q7bfUVoMGnjo4AZdUMQku50McDcMWcBPvr0SzbTAFDfvJqwLzgxwATnCgnp4wDl6Aa+Ax283gghmj+vj7feE2KBBRMW3FzOpLOADl0Isb5587h/U4gGvkt5v60Z1VLG8BhYjbzRwyQZemwAd6cCR5/XFWLYZRIMpX39AR0tjaGGiGzLVyhse5C9RKC6ai42ppWPKiBagOvaYk8lO7DajerabOZP46Lby5wKjw1HCRx7p9sVMOWGzb/vA1hwiWc6jm3MvQDTogQkiqIhJV0nBQBTU+3okKCFDy9WwferkHjtxib7t3xIUQtHxnIwtx4mpg26/HfwVNVDb4oI9RHmx5WGelRVlrtiw43zboCLaxv46AZeB3IlTkwouebTr1y2NjSpHz68WNFjHvupy3q8TFn3Hos2IAk4Ju5dCo8B3wP7VPr/FGaKiG+T+v+TQqIrOqMTL1VdWV1DdmcbO8KXBz6esmYWYKPwDL5b5FA1a0hwapHiom0r/cKaoqr+27/XcrS5UwSMbQAAAABJRU5ErkJggg==)](https://deepwiki.com/sgl-project/SpecForge)
+**Dynamic Position-Aware Cross-Entropy for DFlash speculative drafting.**
 
-[![github badge](https://img.shields.io/badge/📃%20LMSYS-Blog-black.svg?style=flat)](https://lmsys.org/blog/2025-07-25-spec-forge/)
-[![slack badge](https://img.shields.io/badge/Slack-join-blueviolet?logo=slack&amp)](https://sgl-fru7574.slack.com/archives/C09784E3EN6)
-[![license](https://img.shields.io/badge/License-MIT%202.0-blue)](./LICENSE)
+This repository is based on [SGLang SpecForge](https://github.com/sgl-project/SpecForge/tree/main) and adds a focused D-PACE training loss for DFlash models. D-PACE changes the training objective only: the drafter architecture, target model interface, and inference pipeline stay unchanged.
 
-</div>
+<p align="center">
+  <img src="./assets/dpace_results.svg" alt="D-PACE headline results" width="880">
+</p>
 
-## 📍 Overview
+## What D-PACE changes
 
-SpecForge is an ecosystem project developed by the SGLang team. It is a framework for training speculative decoding models so that you can smoothly port them over to the SGLang serving framework to speed up your inference.
+DFlash trains parallel block drafters with a fixed position-decay cross-entropy schedule. D-PACE instead derives per-position cross-entropy weights from a smooth accepted-length surrogate, so the loss can shift learning signal toward the draft positions that currently limit accepted length.
 
-We have seen many open-source projects for speculative decoding, but most of them are not well-maintained or not directly compatible with SGLang. We prepared this project because we wish that the open-source community can enjoy a speculative decoding framework that is
-- regularly maintained by the SpecForge team: the code is runnable out-of-the-box
-- directly compatible with SGLang: there is no additional efforts for porting to SGLang
-- provide performant training capabilities: we provided online/offline/tensor-parallel/FSDP to suit your needs
+For a draft block with target-token draft confidence `q_j`:
 
+```text
+q_tilde_j = (1 - alpha) * q_j + alpha
+P_j       = prod_{i <= j} q_tilde_i
+w_j       = sum_{m >= j} P_m
+L_D-PACE  = sum_j stop_gradient(w_j) * CE_j
+```
 
-Check out [**our documentation**](https://docs.sglang.ai/SpecForge/) to get started.
+The implementation uses the optimized prefix-product / suffix-sum form and normalizes D-PACE losses by the local per-GPU batch size. The standard DFlash loss remains available for compatibility.
 
+<p align="center">
+  <img src="./assets/dpace_weight_dynamics.svg" alt="D-PACE dynamic position weights" width="880">
+</p>
 
-## 🚀 Accelerate with SpecBundle
+## Results from the paper
 
-SpecBundle is a collection of production-grade speculative decoding models that are released by the SpecForge team and our industry partners. They provide higher acceptance rate compared to the existing open-source checkpoints over a wide range of domains. Together with SGLang, you can experience up to 4x speedup for inference. Check out our resources below:
+On Qwen3-4B DFlash drafts, D-PACE improves both wall-clock decoding speedup (SR) and average emitted length (`tau`) over the DFlash decayed-CE baseline across the main settings:
 
+| Target / setting | DFlash avg. SR | D-PACE avg. SR | SR gain | DFlash avg. `tau` | D-PACE avg. `tau` | `tau` gain |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Qwen3-4B, 3L, T=0 | 2.93 | 3.20 | +9.2% | 4.10 | 4.52 | +10.2% |
+| Qwen3-4B, 5L, T=0 | 2.98 | 3.27 | +9.7% | 4.38 | 4.85 | +10.7% |
+| Qwen3-4B, 3L, T=1 | 2.74 | 2.96 | +8.0% | 3.86 | 4.19 | +8.5% |
+| Qwen3-4B, 5L, T=1 | 2.77 | 3.03 | +9.4% | 4.10 | 4.50 | +9.8% |
 
-| Item | Link |
+Additional paper highlights:
+
+- Up to **4.47x** speedup on MATH-500 with the 5L Qwen3-4B drafter.
+- Cross-target average emitted length gains of about **+12.5%** on Llama-3.1-8B-Instruct and **+12.8%** on Qwen3-8B.
+- Measured training-time overhead is **2.3%** per step on a single H200.
+
+## Training
+
+Use the existing SpecForge DFlash training entrypoint and select D-PACE explicitly:
+
+```bash
+PYTHONPATH=. torchrun --standalone --nproc_per_node 8 \
+  scripts/train_dflash.py \
+  --target-model-path Qwen/Qwen3-8B \
+  --target-model-backend sglang \
+  --draft-config-path configs/qwen3-8b-dflash.json \
+  --train-data-path cache/dataset/perfectblend_qwen3-8b_regen.jsonl \
+  --output-dir outputs/qwen3-8b-dpace \
+  --num-epochs 6 \
+  --batch-size 4 \
+  --learning-rate 6e-4 \
+  --warmup-ratio 0.04 \
+  --max-grad-norm 1.0 \
+  --max-length 3072 \
+  --chat-template qwen \
+  --attention-backend flex_attention \
+  --block-size 16 \
+  --num-anchors 512 \
+  --loss-type dpace \
+  --dpace-alpha 0.5
+```
+
+Or start from the included example:
+
+```bash
+NUM_GPUS=8 DPACE_ALPHA=0.5 bash examples/run_qwen3_8b_dpace_online.sh
+```
+
+### Loss options
+
+| `--loss-type` | Use |
 | --- | --- |
-| 📝 Documentation | [Link](https://docs.sglang.io/SpecForge/community_resources/specbundle.html) |
-| 📊 Performance Dashboard | [Link](https://docs.sglang.io/SpecForge/SpecBundle/index.html) |
-| 🤗 Hugging Face Collection | [Link](https://huggingface.co/collections/lmsys/specbundle) |
+| `dflash` | Existing DFlash decayed-CE path. Keeps `--loss-decay-gamma` compatibility. |
+| `dpace` | Main D-PACE objective. |
+| `dpace_p` | Cumulative-confidence-only component ablation. |
+| `dpace_f` | Continuation-value-only component ablation. |
 
+## Notes
 
-## 🎉 News
+- D-PACE is draft-only after target-generated training tokens / hidden states are available; it does not require target-probability hooks.
+- This release intentionally keeps the public surface focused on the D-PACE method family.
+- General SpecForge data preparation and training details still apply; see the upstream SpecForge documentation for broader framework usage.
 
-- [2025-12] 🎉 Released SpecBundle (phase 1) and SpecForge v0.2. Check out our blog at [LMSYS.org](https://lmsys.org/blog/2025-12-23-spec-bundle-phase-1/)
-- [2025-12] 🔔 Released the roadmap for 2026 Q1.
-- [2025-08] 🔔 SpecForge is listed as a [flagship project](https://lmsys.org/about/) in LMSYS. Congratulations to the SpecForge team!
-- [2025-08] 🔥 SpecForge powered the Eagle3 draft model for GPT-OSS. Check out the blog at [LMSYS.org](https://lmsys.org/blog/2025-08-27-gpt-oss/)
-- [2025-07] 🔥 SpecForge is released together with Llama4-Eagle3 checkpoints. Check out our blog at [LMSYS.org](https://lmsys.org/blog/2025-07-25-spec-forge/)
+## Acknowledgement
 
-## ✨ Acknowledgements
-
-<img src="./assets/acknowledgements.png" alt="acknowledgements"></img>
-
-We would like to express our sincere gratitude to the official EAGLE team, especially Hongyang Zhang and Yuhui Li, for their invaluable contributions and support. Our thanks also go to the NVIDIA team—particularly Avery H and Izzy Putterman—and to the Google team, especially Ying Wang, for their insightful discussions and generous assistance throughout the project.
-
-We are especially grateful to Meituan for their strong backing and meaningful contributions, which played a vital role in driving this project forward.
-
-This project has also been inspired by many outstanding open-source projects from the LLM community, including [EAGLE](https://github.com/SafeAILab/EAGLE), [BaldEagle](https://github.com/NickL77/BaldEagle), and [TensorRT-Model-Optimizer](https://github.com/NVIDIA/TensorRT-Model-Optimizer) and others. Their contributions and shared knowledge have greatly benefited our work.
-
-## 💡 Special Thanks to Voltage Park
-
-We would like to extend our sincere thanks to [Voltage Park](https://www.voltagepark.com/), our official infrastructure partner. As part of a formal collaboration with the SGLang team, Voltage Park provided critical GPU resources that empowered us to train and evaluate large-scale speculative decoding models efficiently and reliably. This partnership was instrumental in making SpecForge possible. We deeply appreciate Voltage Park’s mission to make cutting-edge AI infrastructure more accessible, and we look forward to continued collaboration as we push the boundaries of open-source LLM serving and optimization.
-
-## 📃 Citation
-
-```bibtex
-@misc{specforge2025,
-  title={SpecForge: Train speculative decoding models effortlessly},
-  author={Shenggui Li, Yikai Zhu, Chao Wang, Fan Yin, Shuai Shi, Yubo Wang, Yi Zhang, Yingyi Huang, Haoshuai Zheng, Yineng Zhang},
-  year={2025},
-  publisher={GitHub},
-  howpublished={\url{https://github.com/sgl-project/specforge}},
-}
+This codebase is adapted from SGLang's SpecForge project. We thank the SpecForge and SGLang contributors for the DFlash training framework that this implementation builds on.

@@ -81,6 +81,19 @@ def parse_args():
         "Suggested: 7 for block_size=16, 5 for 10, 4 for 8. None disables.",
     )
     model_group.add_argument(
+        "--loss-type",
+        type=str,
+        default="dflash",
+        choices=["dflash", "dpace", "dpace_p", "dpace_f"],
+        help="Loss variant. Use dpace for Dynamic Position-Aware Cross-Entropy.",
+    )
+    model_group.add_argument(
+        "--dpace-alpha",
+        type=float,
+        default=0.5,
+        help="Smoothing alpha for D-PACE position weights.",
+    )
+    model_group.add_argument(
         "--embedding-key",
         type=str,
         default=None,
@@ -436,6 +449,8 @@ def main():
         attention_backend=args.attention_backend,
         num_anchors=args.num_anchors,
         loss_decay_gamma=args.loss_decay_gamma,
+        loss_type=args.loss_type,
+        dpace_alpha=args.dpace_alpha,
     )
 
     dflash_model = FSDP(
