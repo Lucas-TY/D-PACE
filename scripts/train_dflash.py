@@ -84,8 +84,15 @@ def parse_args():
         "--loss-type",
         type=str,
         default="dflash",
-        choices=["dflash", "dpace", "dpace_p", "dpace_f"],
-        help="Loss variant. Use dpace for Dynamic Position-Aware Cross-Entropy.",
+        choices=[
+            "dflash",
+            "dpace",
+            "dpace-cumulative-confidence-only",
+            "dpace-continuation-value-only",
+        ],
+        help=(
+            "Loss variant. Use dpace for Dynamic Position-Aware Cross-Entropy."
+        ),
     )
     model_group.add_argument(
         "--dpace-alpha",

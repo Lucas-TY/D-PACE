@@ -19,7 +19,13 @@ except ImportError:
     create_block_mask = None
 
 
-_VALID_LOSS_TYPES = {"dflash", "dpace", "dpace_p", "dpace_f"}
+_VALID_LOSS_TYPES = {
+    "dflash",
+    "dpace",
+    "dpace-cumulative-confidence-only",
+    "dpace-continuation-value-only",
+}
+_DPACE_LOSS_TYPES = _VALID_LOSS_TYPES - {"dflash"}
 
 
 def create_dflash_sdpa_mask(anchor_positions, block_keep_mask, S, block_size, device):
@@ -230,7 +236,7 @@ class OnlineDFlashModel(nn.Module):
         prob: torch.Tensor,
         binary_mask: torch.Tensor,
         binary_mask_b: torch.Tensor,
-        variant: str,
+        loss_type: str,
     ) -> torch.Tensor:
         """Compute detached D-PACE position weights.
 
@@ -243,7 +249,7 @@ class OnlineDFlashModel(nn.Module):
         smooth = torch.where(binary_mask_b, smooth, torch.ones_like(smooth))
         prefix = torch.cumprod(smooth, dim=-1)
 
-        if variant == "p":
+        if loss_type == "dpace-cumulative-confidence-only":
             return prefix
 
         suffix = torch.flip(
@@ -251,11 +257,11 @@ class OnlineDFlashModel(nn.Module):
             dims=[-1],
         )
 
-        if variant == "full":
+        if loss_type == "dpace":
             return suffix
-        if variant == "f":
+        if loss_type == "dpace-continuation-value-only":
             return suffix / prefix.clamp_min(torch.finfo(prefix.dtype).tiny)
-        raise ValueError(f"unknown dpace variant {variant!r}")
+        raise ValueError(f"unknown D-PACE loss_type {loss_type!r}")
 
     def forward(
         self,
@@ -356,10 +362,7 @@ class OnlineDFlashModel(nn.Module):
             flat_weights = loss_weights.view(-1)
             valid_token_count = flat_weights.sum() + 1e-6
             loss = (loss_per_token * flat_weights).sum() / valid_token_count
-        else:
-            variant = {"dpace": "full", "dpace_p": "p", "dpace_f": "f"}[
-                self.loss_type
-            ]
+        elif self.loss_type in _DPACE_LOSS_TYPES:
             neg_log_q = loss_per_token.view_as(target_ids)
             with torch.no_grad():
                 q = torch.exp(-neg_log_q)
@@ -367,10 +370,12 @@ class OnlineDFlashModel(nn.Module):
                     q,
                     weight_mask,
                     weight_mask > 0,
-                    variant,
+                    self.loss_type,
                 )
             loss_weights = weight_mask * dpace_weights
             loss = (neg_log_q * loss_weights).sum() / float(bsz)
+        else:
+            raise ValueError(f"unknown loss_type {self.loss_type!r}")
 
         # --- Accuracy ---
         with torch.no_grad():

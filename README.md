@@ -73,13 +73,40 @@ NUM_GPUS=8 DPACE_ALPHA=0.5 bash examples/run_qwen3_8b_dpace_online.sh
 | --- | --- |
 | `dflash` | Existing DFlash decayed-CE path. Keeps `--loss-decay-gamma` compatibility. |
 | `dpace` | Main D-PACE objective. |
-| `dpace_p` | Cumulative-confidence-only component ablation. |
-| `dpace_f` | Continuation-value-only component ablation. |
+| `dpace-cumulative-confidence-only` | Cumulative-confidence-only component ablation. |
+| `dpace-continuation-value-only` | Continuation-value-only component ablation. |
+
+## Evaluation
+
+D-PACE changes the training loss only, so trained D-PACE draft checkpoints use the
+standard DFlash inference and evaluation path. For release use, evaluate D-PACE
+checkpoints with the public [DFlash benchmark](https://github.com/z-lab/dflash)
+CLI and pass the trained checkpoint as `--draft-model`.
+
+The paper reports the same metrics printed by the DFlash benchmark: wall-clock
+decoding speedup (`SR`) and average emitted length (`tau`). The public benchmark
+covers `gsm8k`, `math500`, `humaneval`, `mbpp`, and `mt-bench`; paper-specific
+result aggregation scripts are not part of this release.
+
+Example with the Transformers backend:
+
+```bash
+torchrun --nproc_per_node=8 -m dflash.benchmark --backend transformers \
+  --model Qwen/Qwen3-8B \
+  --draft-model outputs/qwen3-8b-dpace \
+  --dataset gsm8k \
+  --max-samples 128
+```
+
+For server backends, launch vLLM or SGLang with DFlash speculative decoding and
+point the speculative draft model to the D-PACE checkpoint, then run the matching
+DFlash benchmark backend against that server.
 
 ## Notes
 
 - D-PACE is draft-only after target-generated training tokens / hidden states are available; it does not require target-probability hooks.
-- This release intentionally keeps the public surface focused on the D-PACE method family.
+- This release intentionally keeps the public surface focused on the D-PACE method family: training is implemented here, while evaluation follows the public DFlash benchmark and inference APIs.
+- Experiment bookkeeping and cluster-specific launchers are intentionally omitted from the release.
 - General SpecForge data preparation and training details still apply; see the upstream SpecForge documentation for broader framework usage.
 
 ## Acknowledgements
